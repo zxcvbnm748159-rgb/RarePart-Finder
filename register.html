@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RarePart Finder - Register</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #2b59ff;
+            --text-main: #1a1d23;
+            --text-muted: #6b7280;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.3s ease; }
+        
+        body { 
+            font-family: 'Kanit', 'Inter', sans-serif; 
+            background: linear-gradient(rgba(26, 29, 35, 0.8), rgba(26, 29, 35, 0.8)), 
+                        url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* Language Switcher */
+        .top-actions {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+        }
+        .lang-switch {
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 15px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Register Card */
+        .register-card {
+            background: #fff;
+            width: 100%;
+            max-width: 480px;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .logo { 
+            font-size: 1.8rem; 
+            font-weight: 800; 
+            color: var(--text-main); 
+            margin-bottom: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .logo span { color: var(--primary-blue); }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+        }
+
+        /* Form Layout */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            text-align: left;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+        .full-width { grid-column: span 2; }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+        .input-wrapper i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        .input-wrapper input {
+            width: 100%;
+            padding: 10px 12px 10px 38px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .input-wrapper input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(43, 89, 255, 0.1);
+        }
+
+        /* Terms Checkbox */
+        .terms {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            text-align: left;
+            margin: 10px 0 25px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .terms input { margin-top: 3px; cursor: pointer; }
+        .terms a { color: var(--primary-blue); text-decoration: none; font-weight: 600; }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-blue);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .btn-submit:hover {
+            background: #0037ff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(43, 89, 255, 0.3);
+        }
+
+        .login-link {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .login-link a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-actions">
+        <div class="lang-switch" onclick="toggleLanguage()">
+            <i class="fa-solid fa-globe"></i>
+            <span id="langLabel">TH | ภาษาไทย</span>
+        </div>
+    </div>
+
+    <div class="register-card">
+        <a href="index.html" class="logo">RarePart<span>Finder</span></a>
+        <p class="subtitle" id="subtitleText">Create your account to start hunting.</p>
+
+        <form>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label id="fnameLabel">ชื่อจริง</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" placeholder="First Name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="lnameLabel">นามสกุล</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" placeholder="Last Name">
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label id="emailLabel">อีเมล</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" placeholder="example@email.com">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label id="passLabel">รหัสผ่าน</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" placeholder="••••••••">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="confirmLabel">ยืนยันรหัสผ่าน</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-shield-check"></i>
+                        <input type="password" placeholder="••••••••">
+                    </div>
+                </div>
+            </div>
+
+            <div class="terms">
+                <input type="checkbox" id="agreeTerms">
+                <label for="agreeTerms" id="termsText">
+                    ฉันยอมรับ <a href="#">ข้อตกลงและเงื่อนไข</a> และ <a href="#">นโยบายความเป็นส่วนตัว</a>
+                </label>
+            </div>
+
+            <button type="submit" class="btn-submit" id="regBtnText">สร้างบัญชี</button>
+        </form>
+
+        <p class="login-link">
+            <span id="hasAccountText">มีบัญชีอยู่แล้ว?</span> 
+            <a href="login.html" id="loginText">เข้าสู่ระบบที่นี่</a>
+        </p>
+    </div>
+
+    <script>
+        let isThai = true;
+        function toggleLanguage() {
+            const langLabel = document.getElementById('langLabel');
+            const subtitleText = document.getElementById('subtitleText');
+            const fnameLabel = document.getElementById('fnameLabel');
+            const lnameLabel = document.getElementById('lnameLabel');
+            const emailLabel = document.getElementById('emailLabel');
+            const passLabel = document.getElementById('passLabel');
+            const confirmLabel = document.getElementById('confirmLabel');
+            const regBtnText = document.getElementById('regBtnText');
+            const hasAccountText = document.getElementById('hasAccountText');
+            const loginText = document.getElementById('loginText');
+            const termsText = document.getElementById('termsText');
+
+            if(isThai) {
+                langLabel.innerText = "EN | English";
+                subtitleText.innerText = "สร้างบัญชีใหม่เพื่อเริ่มการค้นหา";
+                fnameLabel.innerText = "First Name";
+                lnameLabel.innerText = "Last Name";
+                emailLabel.innerText = "Email Address";
+                passLabel.innerText = "Password";
+                confirmLabel.innerText = "Confirm Password";
+                regBtnText.innerText = "Register";
+                hasAccountText.innerText = "Already have an account?";
+                loginText.innerText = "Login here";
+                termsText.innerHTML = 'I agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a>';
+            } else {
+                langLabel.innerText = "TH | ภาษาไทย";
+                subtitleText.innerText = "Create your account to start hunting.";
+                fnameLabel.innerText = "ชื่อจริง";
+                lnameLabel.innerText = "นามสกุล";
+                emailLabel.innerText = "อีเมล";
+                passLabel.innerText = "รหัสผ่าน";
+                confirmLabel.innerText = "ยืนยันรหัสผ่าน";
+                regBtnText.innerText = "สร้างบัญชี";
+                hasAccountText.innerText = "มีบัญชีอยู่แล้ว?";
+                loginText.innerText = "เข้าสู่ระบบที่นี่";
+                termsText.innerHTML = 'ฉันยอมรับ <a href="#">ข้อตกลงและเงื่อนไข</a> และ <a href="#">นโยบายความเป็นส่วนตัว</a>';
+            }
+            isThai = !isThai;
+        }
+    </script>
+</body>
+</html>

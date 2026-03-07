@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RarePart Finder - Login</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #2b59ff;
+            --bg-dark: #1a1d23;
+            --text-main: #1a1d23;
+            --text-muted: #6b7280;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.3s ease; }
+        
+        body { 
+            font-family: 'Kanit', 'Inter', sans-serif; 
+            background: linear-gradient(rgba(26, 29, 35, 0.8), rgba(26, 29, 35, 0.8)), 
+                        url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .top-actions {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+        }
+        .lang-switch {
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 15px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        .login-card {
+            background: #fff;
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .logo { 
+            font-size: 1.8rem; 
+            font-weight: 800; 
+            color: var(--text-main); 
+            margin-bottom: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .logo span { color: var(--primary-blue); }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+        .input-wrapper {
+            position: relative;
+        }
+        .input-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+        .input-wrapper input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        .input-wrapper input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(43, 89, 255, 0.1);
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 25px;
+        }
+        .forgot-password a {
+            font-size: 0.85rem;
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-blue);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .btn-submit:hover {
+            background: #0037ff;
+            transform: translateY(-2px);
+        }
+
+        .register-link {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .register-link a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-actions">
+        <div class="lang-switch" onclick="toggleLanguage()">
+            <i class="fa-solid fa-globe"></i>
+            <span id="langLabel">TH | ภาษาไทย</span>
+        </div>
+    </div>
+
+    <div class="login-card">
+        <a href="index.html" class="logo">RarePart<span>Finder</span></a>
+        <p class="subtitle" id="subtitleText">Welcome back, Hunter.</p>
+
+        <form onsubmit="return handleLogin(event)">
+            <div class="form-group">
+                <label id="userLabel">อีเมลหรือชื่อผู้ใช้</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="text" id="userInput" placeholder="example@email.com" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="passLabel">รหัสผ่าน</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="passInput" placeholder="••••••••" required>
+                </div>
+            </div>
+
+            <div class="forgot-password">
+                <a href="#" id="forgotText">ลืมรหัสผ่าน?</a>
+            </div>
+
+            <button type="submit" class="btn-submit" id="loginBtnText">เข้าสู่ระบบ</button>
+        </form>
+
+        <p class="register-link">
+            <span id="noAccountText">ยังไม่มีบัญชี?</span> 
+            <a href="register.html" id="regText">ลงทะเบียนเลย</a>
+        </p>
+    </div>
+
+    <script>
+        // --- ระบบจดจำการเข้าสู่ระบบ (LocalStorage) ---
+        function handleLogin(event) {
+            event.preventDefault(); 
+            
+            // บันทึกสถานะว่า Login แล้ว
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('username', 'Thanita Senphrad'); 
+            
+            alert("ยินดีต้อนรับกลับมา! ระบบจดจำคุณแล้ว");
+            window.location.href = 'index.html'; // กลับไปหน้าแรก
+            return false;
+        }
+
+        // --- ระบบสลับภาษา ---
+        let isThai = true;
+        function toggleLanguage() {
+            const langLabel = document.getElementById('langLabel');
+            const subtitleText = document.getElementById('subtitleText');
+            const userLabel = document.getElementById('userLabel');
+            const passLabel = document.getElementById('passLabel');
+            const forgotText = document.getElementById('forgotText');
+            const loginBtnText = document.getElementById('loginBtnText');
+            const noAccountText = document.getElementById('noAccountText');
+            const regText = document.getElementById('regText');
+
+            if(isThai) {
+                langLabel.innerText = "EN | English";
+                subtitleText.innerText = "ยินดีต้อนรับกลับมาครับ";
+                userLabel.innerText = "Email or Username";
+                passLabel.innerText = "Password";
+                forgotText.innerText = "Forgot Password?";
+                loginBtnText.innerText = "Login";
+                noAccountText.innerText = "Don't have an account?";
+                regText.innerText = "Register now";
+            } else {
+                langLabel.innerText = "TH | ภาษาไทย";
+                subtitleText.innerText = "Welcome back, Hunter.";
+                userLabel.innerText = "อีเมลหรือชื่อผู้ใช้";
+                passLabel.innerText = "รหัสผ่าน";
+                forgotText.innerText = "ลืมรหัสผ่าน?";
+                loginBtnText.innerText = "เข้าสู่ระบบ";
+                noAccountText.innerText = "ยังไม่มีบัญชี?";
+                regText.innerText = "ลงทะเบียนเลย";
+            }
+            isThai = !isThai;
+        }
+    </script>
+</body>
+</html>

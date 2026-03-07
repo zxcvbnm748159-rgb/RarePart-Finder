@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ลงขายสินค้า - RarePart Finder</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #2b59ff;
+            --bg-light: #f5f7fa;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background: var(--bg-light);
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #1a1d23;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group { margin-bottom: 20px; }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Kanit';
+            font-size: 1rem;
+            transition: 0.3s;
+            box-sizing: border-box;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(43, 89, 255, 0.1);
+        }
+
+        .image-upload-container {
+            position: relative;
+            border: 2px dashed #ddd;
+            min-height: 200px;
+            text-align: center;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            color: #aaa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-color: #fafafa;
+        }
+
+        .image-upload-container:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        .image-upload-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+
+        .btn-back {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2><i class="fa-solid fa-store"></i> ลงขายอะไหล่ใหม่</h2>
+        <p style="color: #888; margin-bottom: 25px;">ระบุแบรนด์รถและรายละเอียดสินค้าให้ชัดเจน</p>
+
+        <form id="addProductForm">
+            <div class="form-group">
+                <label>รูปภาพสินค้า</label>
+                <div class="image-upload-container" id="uploadBox" onclick="document.getElementById('fileInput').click()">
+                    <div id="uploadPlaceholder">
+                        <i class="fa-solid fa-cloud-arrow-up fa-2x"></i>
+                        <p>คลิกเพื่ออัปโหลดรูปภาพ</p>
+                    </div>
+                    <img id="imagePreview" src="" style="display: none;">
+                    <input type="file" id="fileInput" hidden accept="image/*" onchange="previewImage(this)">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>ชื่อสินค้า / อะไหล่</label>
+                <input type="text" id="pName" placeholder="เช่น ไฟหน้า Civic FD" required>
+            </div>
+
+            <div class="form-group" style="display: flex; gap: 15px;">
+                <div style="flex: 1;">
+                    <label>ราคา (บาท)</label>
+                    <input type="number" id="pPrice" placeholder="0" required>
+                </div>
+                <div style="flex: 1;">
+                    <label>แบรนด์รถยนต์</label>
+                    <select id="productCategory">
+                        <option value="Honda">Honda</option>
+                        <option value="Toyota">Toyota</option>
+                        <option value="Mazda">Mazda</option>
+                        <option value="Nissan">Nissan</option>
+                        <option value="Mitsubishi">Mitsubishi</option>
+                        <option value="Isuzu">Isuzu</option>
+                        <option value="Suzuki">Suzuki</option>
+                        <option value="Ford">Ford</option>
+                        <option value="Other">แบรนด์อื่นๆ</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>รายละเอียดสินค้า</label>
+                <textarea id="pDetail" rows="4" placeholder="บอกสภาพสินค้า เช่น ของมือสองสภาพนางฟ้า..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">ลงขายทันที</button>
+        </form>
+
+        <a href="index.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> กลับหน้าหลัก</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // 1. ตั้งค่าการเชื่อมต่อ
+        const supabaseUrl = 'https://luuclnuknivvekxyiojz.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1dWNsbnVrbml2dmVreHlpb2p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NzY0MTIsImV4cCI6MjA4ODQ1MjQxMn0.0qmDRylJ-yN6QJtf50bGrn2mcqedwoakxVASKTxmLVg';
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // ฟังก์ชัน Preview รูปภาพ
+        function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+            const placeholder = document.getElementById('uploadPlaceholder');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    placeholder.style.display = 'none';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // 2. ระบบบันทึกข้อมูลสินค้าไปยัง Supabase
+        document.getElementById('addProductForm').onsubmit = async function (e) {
+            e.preventDefault();
+
+            const btn = document.getElementById('submitBtn');
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("กรุณาเลือกรูปภาพสินค้าก่อนลงขายครับ");
+                return;
+            }
+
+            btn.innerText = "กำลังอัปโหลดรูปภาพ...";
+            btn.disabled = true;
+
+            try {
+                // A. อัปโหลดรูปภาพไปยัง Storage Bucket 'product-images'
+                // หมายเหตุ: คุณต้องสร้าง Bucket ชื่อ 'product-images' ใน Supabase และตั้งเป็น Public ก่อน
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}.${fileExt}`;
+                
+                const { data: uploadData, error: uploadError } = await _supabase.storage
+                    .from('product-images')
+                    .upload(fileName, file);
+
+                if (uploadError) throw uploadError;
+
+                btn.innerText = "กำลังบันทึกข้อมูลลงฐานข้อมูล...";
+
+                // B. ดึง Public URL
+                const { data: urlData } = _supabase.storage
+                    .from('product-images')
+                    .getPublicUrl(fileName);
+
+                const publicUrl = urlData.publicUrl;
+
+                // C. บันทึกข้อมูลลง Table 'products'
+                const { error: dbError } = await _supabase
+                    .from('products')
+                    .insert([{
+                        name: document.getElementById('pName').value,
+                        price: parseFloat(document.getElementById('pPrice').value),
+                        category: document.getElementById('productCategory').value,
+                        detail: document.getElementById('pDetail').value,
+                        image_url: publicUrl
+                    }]);
+
+                if (dbError) throw dbError;
+
+                alert("ลงขายสินค้าสำเร็จเรียบร้อยแล้ว!");
+                window.location.href = 'index.html';
+
+            } catch (err) {
+                console.error("Error details:", err);
+                alert("เกิดข้อผิดพลาด: " + (err.message || "ไม่สามารถบันทึกได้"));
+                btn.disabled = false;
+                btn.innerText = "ลงขายทันที";
+            }
+        };
+    </script>
+</body>
+</html>

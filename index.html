@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RarePart Finder - Home</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Kanit:wght@300;500&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-blue: #2b59ff;
+            --bg-light: #f5f7fa;
+            --text-dark: #1a1d23;
+            --sidebar-width: 240px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        header {
+            background: #fff;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--primary-blue);
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            max-width: 500px;
+            position: relative;
+            margin: 0 20px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            background: #f8f9fa;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-sell {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            color: var(--primary-blue);
+            border: 1.5px solid var(--primary-blue);
+            padding: 8px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .cart-icon {
+            position: relative;
+            font-size: 1.3rem;
+            color: #555;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #ff4d4d;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 50%;
+            font-weight: 800;
+        }
+
+        .btn-login {
+            background: var(--primary-blue);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .wrapper {
+            display: flex;
+            margin-top: 70px;
+        }
+
+        aside {
+            width: var(--sidebar-width);
+            background: #fff;
+            height: calc(100vh - 70px);
+            position: fixed;
+            padding: 20px 0;
+            border-right: 1px solid #eee;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 25px;
+            color: #555;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .menu-item.active {
+            background: #f0f4ff;
+            color: var(--primary-blue);
+            border-right: 3px solid var(--primary-blue);
+        }
+
+        main {
+            margin-left: var(--sidebar-width);
+            padding: 30px;
+            width: 100%;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .product-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: 0.3s;
+        }
+
+        .product-img {
+            width: 100%;
+            height: 180px;
+            background: #f0f2f5;
+            border-radius: 10px;
+            background-position: center;
+            background-size: cover;
+        }
+
+        .btn-add-cart {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            border: none;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Kanit';
+        }
+
+        /* Dropdown Styles */
+        .user-menu-container {
+            position: relative;
+        }
+
+        .user-profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 12px;
+            background: #f0f2f5;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 45px;
+            background: #fff;
+            min-width: 200px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+        }
+
+        .dropdown-content.show {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="index.html" class="logo">RarePart<span>Finder</span></a>
+        <div class="search-bar">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="ค้นหาชื่ออะไหล่...">
+        </div>
+        <div class="header-actions">
+            <a href="add-product.html" class="btn-sell" id="sellBtn"><i class="fa-solid fa-plus-circle"></i>
+                ลงขายสินค้า</a>
+            <div class="cart-icon" onclick="location.href='checkout.html'">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </div>
+            <div class="user-menu-container" id="userMenuArea" style="display: none;">
+                <div class="user-profile-trigger" onclick="toggleDropdown()">
+                    <div class="user-avatar-mini"
+                        style="width:30px; height:30px; background:#ddd; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                        <i class="fa-solid fa-user"></i></div>
+                    <span id="navUsername">User</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <div class="dropdown-content" id="myDropdown">
+                    <a href="profile.html"><i class="fa-solid fa-gear"></i> การตั้งค่า</a>
+                    <a href="#" onclick="handleLogout()" style="color: #ff4d4d;"><i
+                            class="fa-solid fa-right-from-bracket"></i> ลงชื่อออก</a>
+                </div>
+            </div>
+            <a href="login.html" class="btn-login" id="loginBtnOnly">เข้าสู่ระบบ</a>
+        </div>
+    </header>
+
+    <div class="wrapper">
+        <aside>
+            <a onclick="filterByCategory('all')" class="menu-item active" id="btn-all">
+                <i class="fa-solid fa-border-all" style="margin-right:10px;"></i> ทั้งหมด
+            </a>
+            <a onclick="filterByCategory('Honda')" class="menu-item"><i class="fa-solid fa-car-side"
+                    style="margin-right:10px;"></i> Honda</a>
+            <a onclick="filterByCategory('Toyota')" class="menu-item"><i class="fa-solid fa-car-side"
+                    style="margin-right:10px;"></i> Toyota</a>
+            <a onclick="filterByCategory('Mazda')" class="menu-item"><i class="fa-solid fa-car-side"
+                    style="margin-right:10px;"></i> Mazda</a>
+            <a onclick="filterByCategory('Mitsubishi')" class="menu-item"><i class="fa-solid fa-car-side"
+                    style="margin-right:10px;"></i> Mitsubishi</a>
+            <a onclick="filterByCategory('Nissan')" class="menu-item"><i class="fa-solid fa-car-side"
+                    style="margin-right:10px;"></i> Nissan</a>
+            <a onclick="filterByCategory('Isuzu')" class="menu-item"><i class="fa-solid fa-truck-pickup"
+                    style="margin-right:10px;"></i> Isuzu</a>
+            <a onclick="filterByCategory('BMW/Benz')" class="menu-item"><i class="fa-solid fa-gem"
+                    style="margin-right:10px;"></i> ยุโรป (BMW/Benz)</a>
+
+            <hr style="margin: 10px 20px; border: 0; border-top: 1px solid #eee;">
+
+            <a onclick="filterByCategory('เครื่องยนต์')" class="menu-item"><i class="fa-solid fa-gears"
+                    style="margin-right:10px;"></i> เครื่องยนต์</a>
+            <a onclick="filterByCategory('ช่วงล่าง')" class="menu-item"><i class="fa-solid fa-wrench"
+                    style="margin-right:10px;"></i> ช่วงล่าง/เบรก</a>
+            <a onclick="filterByCategory('ภายนอก')" class="menu-item"><i class="fa-solid fa-car"
+                    style="margin-right:10px;"></i> บอดี้/ภายนอก</a>
+            <a onclick="filterByCategory('ภายใน')" class="menu-item"><i class="fa-solid fa-couch"
+                    style="margin-right:10px;"></i> ภายใน/คอนโซล</a>
+        </aside>
+        <main>
+            <div id="hero-banner"
+                style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1350&q=80'); background-size: cover; background-position: center; height:200px; border-radius:12px; margin-bottom:30px; display:flex; align-items:center; justify-content:center; color:#fff;">
+                <h2 style="font-size: 2rem;">ค้นหาอะไหล่หายากเพื่อรถที่คุณรัก</h2>
+            </div>
+            <h3 id="gridTitle">อะไหล่แนะนำ</h3>
+            <div class="product-grid" id="mainProductGrid"></div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://luuclnuknivvekxyiojz.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1dWNsbnVrbml2dmVreHlpb2p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NzY0MTIsImV4cCI6MjA4ODQ1MjQxMn0.0qmDRylJ-yN6QJtf50bGrn2mcqedwoakxVASKTxmLVg';
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        let currentCategory = 'all';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateAuthUI();
+            updateCartBadge();
+            loadProducts();
+
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                loadProducts(e.target.value, currentCategory);
+            });
+        });
+
+        async function loadProducts(searchTerm = "", category = "all") {
+            const productGrid = document.getElementById('mainProductGrid');
+            const gridTitle = document.getElementById('gridTitle');
+            productGrid.innerHTML = '<p style="grid-column:1/-1; text-align:center;">กำลังโหลด...</p>';
+
+            try {
+                let query = _supabase.from('products').select('*');
+                if (category !== 'all') query = query.eq('category', category);
+                if (searchTerm) query = query.ilike('name', `%${searchTerm}%`);
+
+                const { data: products, error } = await query.order('created_at', { ascending: false });
+                if (error) throw error;
+
+                productGrid.innerHTML = '';
+                if (!products || products.length === 0) {
+                    productGrid.innerHTML = '<p style="grid-column:1/-1; text-align:center;">ไม่พบสินค้า</p>';
+                    return;
+                }
+
+                products.forEach(product => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    const imgUrl = product.image_url || 'https://via.placeholder.com/300';
+                    card.innerHTML = `
+                        <div class="product-img" style="background-image: url('${imgUrl}')"></div>
+                        <div style="padding-top:10px;">
+                            <h4>${product.name}</h4>
+                            <p style="color:var(--primary-blue); font-weight:800;">฿${Number(product.price).toLocaleString()}</p>
+                            <button class="btn-add-cart" onclick="addToCart('${product.id}', '${product.name}', ${product.price}, '${imgUrl}')">
+                                <i class="fa-solid fa-cart-plus"></i> เพิ่มลงตะกร้า
+                            </button>
+                        </div>`;
+                    productGrid.appendChild(card);
+                });
+            } catch (err) {
+                productGrid.innerHTML = 'เกิดข้อผิดพลาด';
+            }
+        }
+
+        // ฟังก์ชันเดียวที่ใช้จัดการตะกร้าสินค้า
+        window.addToCart = function (id, name, price, image) {
+            if (localStorage.getItem('isLoggedIn') !== 'true') {
+                alert("กรุณาเข้าสู่ระบบก่อนครับ");
+                window.location.href = 'login.html';
+                return;
+            }
+
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existing = cart.find(item => item.id === id);
+
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ id, name, price, image, quantity: 1 });
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartBadge();
+            alert(`เพิ่ม ${name} แล้ว!`);
+        };
+
+        function updateCartBadge() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const total = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            const badge = document.getElementById('cartCount');
+            if (badge) badge.innerText = total;
+        }
+
+        window.filterByCategory = function (cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            loadProducts(document.getElementById('searchInput').value, cat);
+        };
+
+        function updateAuthUI() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            document.getElementById('userMenuArea').style.display = isLoggedIn ? 'block' : 'none';
+            document.getElementById('loginBtnOnly').style.display = isLoggedIn ? 'none' : 'block';
+            if (document.getElementById('sellBtn')) document.getElementById('sellBtn').style.display = isLoggedIn ? 'flex' : 'none';
+            if (isLoggedIn) document.getElementById('navUsername').innerText = localStorage.getItem('username');
+        }
+
+        window.toggleDropdown = () => document.getElementById("myDropdown").classList.toggle("show");
+
+        window.handleLogout = () => {
+            if (confirm("ออกจากระบบ?")) {
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('username');
+                window.location.reload();
+            }
+        };
+    </script>
+</body>
+
+</html>

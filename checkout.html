@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RarePart Finder - Checkout</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #2b59ff;
+            --bg-light: #f5f7fa;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background: var(--bg-light);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: #fff;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 { border-bottom: 2px solid var(--bg-light); padding-bottom: 15px; }
+
+        .cart-item {
+            display: flex;
+            gap: 20px;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+
+        .cart-item img {
+            width: 100px;
+            height: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+            background: #eee;
+        }
+
+        .item-details { flex: 1; }
+        .item-details h4 { margin: 0 0 5px 0; font-size: 1.1rem; }
+        .item-details p { margin: 0; color: var(--primary-blue); font-weight: 500; }
+
+        .summary {
+            margin-top: 30px;
+            text-align: right;
+            padding-top: 20px;
+        }
+
+        .btn-checkout {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-family: 'Kanit';
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-checkout:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        .btn-remove {
+            color: #ff4d4d;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="index.html" style="text-decoration:none; color:#1a1d23; font-weight:800; font-size:1.5rem;">
+            RarePart<span style="color:var(--primary-blue)">Finder</span>
+        </a>
+        <a href="index.html" style="text-decoration:none; color:var(--primary-blue); font-weight: 500;">
+            <i class="fa-solid fa-arrow-left"></i> กลับไปเลือกสินค้า
+        </a>
+    </header>
+
+    <div class="container">
+        <h2><i class="fa-solid fa-cart-shopping"></i> ตรวจสอบรายการสั่งซื้อ</h2>
+        
+        <div id="cartItemsList">
+            </div>
+
+        <div class="summary">
+            <h3>ยอดรวมทั้งหมด: <span id="totalPrice" style="color:var(--primary-blue)">0</span> บาท</h3>
+            <button class="btn-checkout" onclick="processOrder()">ยืนยันการสั่งซื้อ</button>
+        </div>
+    </div>
+
+    <script>
+        function renderCheckout() {
+            // ดึงข้อมูลจาก localStorage
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const container = document.getElementById('cartItemsList');
+            let total = 0;
+
+            if (cart.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding: 40px;">
+                    <i class="fa-solid fa-box-open" style="font-size: 3rem; color: #ccc; margin-bottom: 10px;"></i>
+                    <p>ไม่มีสินค้าในตะกร้า</p>
+                </div>`;
+                document.getElementById('totalPrice').innerText = "0";
+                return;
+            }
+
+            container.innerHTML = cart.map((item, index) => {
+                // 1. จัดการเรื่องราคา (ดักจับ NaN)
+                const price = Number(item.price) || 0;
+                
+                // 2. จัดการเรื่องจำนวน (ถ้า undefined ให้เป็น 1)
+                const qty = Number(item.quantity) || 1; 
+                
+                // 3. จัดการเรื่องรูปภาพ (รองรับทั้ง image และ image_url จาก Database)
+                const img = item.image_url || item.image || 'https://via.placeholder.com/100x80?text=No+Image';
+                
+                // 4. ชื่อสินค้า
+                const name = item.name || "สินค้าไม่ระบุชื่อ";
+
+                const subtotal = price * qty;
+                total += subtotal;
+
+                return `
+                    <div class="cart-item">
+                        <img src="${img}" alt="${name}">
+                        <div class="item-details">
+                            <h4>${name}</h4>
+                            <p>${price.toLocaleString()} บาท x ${qty}</p>
+                        </div>
+                        <button class="btn-remove" onclick="removeItem(${index})">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('totalPrice').innerText = total.toLocaleString();
+        }
+
+        function removeItem(index) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            // ลบตามตำแหน่ง Index จะแม่นยำกว่าในกรณีที่ ID ซ้ำกัน
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            renderCheckout();
+        }
+
+        function processOrder() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (cart.length === 0) {
+                alert("ไม่มีสินค้าให้สั่งซื้อครับ");
+                return;
+            }
+            
+            alert("สั่งซื้อสินค้าสำเร็จ! ขอบคุณที่ใช้บริการ RarePart Finder");
+            localStorage.removeItem('cart');
+            window.location.href = 'index.html';
+        }
+
+        // เริ่มต้นการทำงาน
+        renderCheckout();
+    </script>
+</body>
+
+</html>
