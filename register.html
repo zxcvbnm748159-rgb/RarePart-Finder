@@ -178,20 +178,20 @@
         <a href="index.html" class="logo">RarePart<span>Finder</span></a>
         <p class="subtitle" id="subtitleText">Create your account to start hunting.</p>
 
-        <form>
+        <form onsubmit="return handleRegister(event)">
             <div class="form-grid">
                 <div class="form-group">
                     <label id="fnameLabel">ชื่อจริง</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-user"></i>
-                        <input type="text" placeholder="First Name">
+                        <input type="text" id="reg_fname" placeholder="First Name">
                     </div>
                 </div>
                 <div class="form-group">
                     <label id="lnameLabel">นามสกุล</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-user"></i>
-                        <input type="text" placeholder="Last Name">
+                        <input type="text" id="reg_lname" placeholder="Last Name">
                     </div>
                 </div>
 
@@ -199,7 +199,7 @@
                     <label id="emailLabel">อีเมล</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-envelope"></i>
-                        <input type="email" placeholder="example@email.com">
+                        <input type="email" id="reg_email" placeholder="example@email.com">
                     </div>
                 </div>
 
@@ -207,14 +207,14 @@
                     <label id="passLabel">รหัสผ่าน</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-lock"></i>
-                        <input type="password" placeholder="••••••••">
+                        <input type="password" id="reg_pass" placeholder="••••••••">
                     </div>
                 </div>
                 <div class="form-group">
                     <label id="confirmLabel">ยืนยันรหัสผ่าน</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-shield-check"></i>
-                        <input type="password" placeholder="••••••••">
+                        <input type="password" id="reg_confirm" placeholder="••••••••">
                     </div>
                 </div>
             </div>
@@ -235,7 +235,25 @@
         </p>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="common.js"></script>
     <script>
+        async function handleRegister(event) {
+            event.preventDefault();
+            const v = id => document.getElementById('reg_' + id).value.trim();
+            if (v('pass').length < 8) { alert('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร'); return false; }
+            if (v('pass') !== document.getElementById('reg_confirm').value) { alert('รหัสผ่านไม่ตรงกัน'); return false; }
+            if (!document.getElementById('agreeTerms').checked) { alert('กรุณายอมรับข้อตกลงและเงื่อนไข'); return false; }
+            const { data, error } = await _supabase.auth.signUp({
+                email: v('email'), password: document.getElementById('reg_pass').value,
+                options: { data: { full_name: v('fname') + ' ' + v('lname') } }
+            });
+            if (error) { alert('สมัครสมาชิกไม่สำเร็จ: ' + error.message); return false; }
+            alert(data.session ? 'สมัครสมาชิกสำเร็จ!' : 'สมัครสำเร็จ! กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ');
+            location.href = data.session ? 'index.html' : 'login.html';
+            return false;
+        }
+
         let isThai = true;
         function toggleLanguage() {
             const langLabel = document.getElementById('langLabel');

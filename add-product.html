@@ -178,11 +178,9 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="common.js"></script>
     <script>
-        // 1. ตั้งค่าการเชื่อมต่อ
-        const supabaseUrl = 'https://luuclnuknivvekxyiojz.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1dWNsbnVrbml2dmVreHlpb2p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NzY0MTIsImV4cCI6MjA4ODQ1MjQxMn0.0qmDRylJ-yN6QJtf50bGrn2mcqedwoakxVASKTxmLVg';
-        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        requireLogin();
 
         // ฟังก์ชัน Preview รูปภาพ
         function previewImage(input) {
@@ -206,6 +204,7 @@
             const btn = document.getElementById('submitBtn');
             const fileInput = document.getElementById('fileInput');
             const file = fileInput.files[0];
+            if (file && file.size > 5 * 1024 * 1024) { alert('รูปต้องมีขนาดไม่เกิน 5MB'); return; }
 
             if (!file) {
                 alert("กรุณาเลือกรูปภาพสินค้าก่อนลงขายครับ");

@@ -188,17 +188,17 @@
         </p>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="common.js"></script>
     <script>
-        // --- ระบบจดจำการเข้าสู่ระบบ (LocalStorage) ---
-        function handleLogin(event) {
-            event.preventDefault(); 
-            
-            // บันทึกสถานะว่า Login แล้ว
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('username', 'Thanita Senphrad'); 
-            
-            alert("ยินดีต้อนรับกลับมา! ระบบจดจำคุณแล้ว");
-            window.location.href = 'index.html'; // กลับไปหน้าแรก
+        async function handleLogin(event) {
+            event.preventDefault();
+            const f = event.target;
+            const email = f.querySelector('input[type="text"], input[type="email"]').value.trim();
+            const password = f.querySelector('input[type="password"]').value;
+            const { error } = await _supabase.auth.signInWithPassword({ email, password });
+            if (error) { alert('เข้าสู่ระบบไม่สำเร็จ: ' + error.message); return false; }
+            location.href = 'index.html';
             return false;
         }
 
