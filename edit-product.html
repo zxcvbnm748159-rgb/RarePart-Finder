@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RarePart Finder - แก้ไขสินค้า</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'Kanit',sans-serif; background:#f5f7fa; color:#1a1d23; padding:30px 15px; }
+        .container { max-width:560px; margin:auto; background:#fff; padding:30px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,.05); }
+        label { display:block; margin:15px 0 5px; font-weight:500; }
+        input, select, textarea { width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; font-family:inherit; font-size:1rem; }
+        .row { display:flex; gap:15px; } .row > div { flex:1; }
+        button { width:100%; margin-top:25px; padding:12px; border:none; border-radius:8px; background:#2b59ff; color:#fff; font-family:inherit; font-size:1rem; cursor:pointer; }
+        a { color:#2b59ff; text-decoration:none; display:inline-block; margin-top:15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>แก้ไขสินค้า</h2>
+        <form id="f" style="display:none">
+            <label>ชื่อสินค้า</label><input id="name" required>
+            <div class="row">
+                <div><label>ราคา (บาท)</label><input id="price" type="number" min="0" required></div>
+                <div><label>สต็อก (ชิ้น)</label><input id="stock" type="number" min="0" required></div>
+            </div>
+            <label>แบรนด์รถยนต์</label>
+            <select id="category">
+                <option>Honda</option><option>Toyota</option><option>Mazda</option><option>Nissan</option>
+                <option>Mitsubishi</option><option>Isuzu</option><option>Suzuki</option><option>Ford</option><option>Other</option>
+            </select>
+            <label>รายละเอียด</label><textarea id="detail" rows="4"></textarea>
+            <button type="submit" id="saveBtn">บันทึกการแก้ไข</button>
+        </form>
+        <p id="msg">กำลังโหลด...</p>
+        <a href="profile.html">&larr; กลับโปรไฟล์</a>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="common.js"></script>
+    <script>
+        (async function () {
+            const user = await requireLogin();
+            if (!user) return;
+            const id = new URLSearchParams(location.search).get('id');
+            const { data: p } = await _supabase.from('products').select('*').eq('id', id).maybeSingle();
+            const msg = document.getElementById('msg');
+            if (!p) { msg.innerText = 'ไม่พบสินค้า'; return; }
+            if (p.seller_id !== user.id) { msg.innerText = 'คุณไม่ใช่เจ้าของสินค้านี้'; return; }
+            msg.style.display = 'none';
+            const f = document.getElementById('f');
+            f.style.display = 'block';
+            for (const k of ['name', 'price', 'stock', 'category', 'detail']) document.getElementById(k).value = p[k] ?? '';
+            f.onsubmit = async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('saveBtn');
+                btn.disabled = true;
+                const { error } = await _supabase.from('products').update({
+                    name: document.getElementById('name').value.trim(),
+                    price: parseFloat(document.getElementById('price').value),
+                    stock: Math.max(0, parseInt(document.getElementById('stock').value) || 0),
+                    category: document.getElementById('category').value,
+                    detail: document.getElementById('detail').value
+                }).eq('id', p.id);
+                if (error) { alert('บันทึกไม่สำเร็จ: ' + error.message); btn.disabled = false; return; }
+                alert('บันทึกแล้ว');
+                location.href = 'product.html?id=' + encodeURIComponent(p.id);
+            };
+        })();
+    </script>
+</body>
+</html>

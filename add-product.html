@@ -171,6 +171,10 @@
                 <textarea id="pDetail" rows="4" placeholder="บอกสภาพสินค้า เช่น ของมือสองสภาพนางฟ้า..."></textarea>
             </div>
 
+            <div class="form-group">
+                <label>จำนวนในสต็อก (ชิ้น)</label>
+                <input type="number" id="pStock" min="1" value="1" required>
+            </div>
             <button type="submit" class="btn-submit" id="submitBtn">ลงขายทันที</button>
         </form>
 
@@ -243,6 +247,7 @@
                         price: parseFloat(document.getElementById('pPrice').value),
                         category: document.getElementById('productCategory').value,
                         detail: document.getElementById('pDetail').value,
+                        stock: Math.max(1, parseInt(document.getElementById('pStock').value) || 1),
                         image_url: publicUrl
                     }]);
 

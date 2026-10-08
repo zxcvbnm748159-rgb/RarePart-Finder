@@ -351,7 +351,7 @@
                         <div style="padding-top:10px;">
                             <a href="product.html?id=${encodeURIComponent(p.id)}" style="text-decoration:none;color:inherit"><h4>${esc(p.name)}</h4></a>
                             <p style="color:var(--primary-blue); font-weight:800;">฿${Number(p.price).toLocaleString()}</p>
-                            <button class="btn-add-cart"><i class="fa-solid fa-cart-plus"></i> เพิ่มลงตะกร้า</button>
+                            <button class="btn-add-cart" ${p.stock > 0 ? '' : 'disabled style="opacity:.5;cursor:not-allowed"'}>${p.stock > 0 ? '<i class="fa-solid fa-cart-plus"></i> เพิ่มลงตะกร้า' : 'สินค้าหมด'}</button>
                         </div>`;
                     // ใช้ addEventListener แทน onclick inline เพื่อไม่ให้ชื่อที่มี ' พังหรือถูกแทรกโค้ด
                     card.querySelector('button').addEventListener('click', () =>

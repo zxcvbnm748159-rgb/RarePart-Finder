@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RarePart Finder - ออเดอร์ที่เข้ามา</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'Kanit',sans-serif; background:#f5f7fa; color:#1a1d23; padding:30px 15px; }
+        .container { max-width:700px; margin:auto; }
+        .order { background:#fff; border-radius:12px; padding:18px; margin-top:15px; box-shadow:0 4px 10px rgba(0,0,0,.05); }
+        .order small { color:#999; } .sum { color:#2b59ff; font-weight:500; margin-top:8px; }
+        a { color:#2b59ff; text-decoration:none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="profile.html">&larr; กลับโปรไฟล์</a>
+        <h2 style="margin-top:15px">ออเดอร์ที่เข้ามา</h2>
+        <div id="list"><p style="margin-top:15px;color:#999">กำลังโหลด...</p></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="common.js"></script>
+    <script>
+        (async function () {
+            const user = await requireLogin();
+            if (!user) return;
+            const el = document.getElementById('list');
+            const { data: mine } = await _supabase.from('products').select('id').eq('seller_id', user.id);
+            const myIds = new Set((mine || []).map(p => Number(p.id)));
+            const { data: orders, error } = await _supabase.from('orders').select('*').order('created_at', { ascending: false });
+            if (error) { el.innerHTML = '<p>โหลดไม่สำเร็จ</p>'; return; }
+            // RLS ส่งออเดอร์ที่มีสินค้าของเรามาให้ (รวมออเดอร์ที่เราซื้อเองด้วย) จึงกรองเฉพาะรายการที่เป็นของเรา
+            const rows = orders.map(o => ({ o, items: o.items.filter(i => myIds.has(Number(i.id))) })).filter(r => r.items.length);
+            el.innerHTML = rows.length ? rows.map(({ o, items }) => `
+                <div class="order">
+                    <strong>Order #RP${o.id}</strong> <small>${new Date(o.created_at).toLocaleString('th-TH')}</small>
+                    <ul style="margin:8px 0 0 20px">${items.map(i => `<li>${esc(i.name)} x${i.quantity} (฿${Number(i.price).toLocaleString()})</li>`).join('')}</ul>
+                    <div class="sum">ยอดของคุณ ฿${items.reduce((s, i) => s + i.price * i.quantity, 0).toLocaleString()}</div>
+                </div>`).join('') : '<p style="margin-top:15px;color:#999">ยังไม่มีออเดอร์</p>';
+        })();
+    </script>
+</body>
+</html>

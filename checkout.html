@@ -177,26 +177,13 @@
             if (cart.length === 0) { alert("ไม่มีสินค้าให้สั่งซื้อครับ"); return; }
             const btn = document.querySelector('.btn-checkout');
             btn.disabled = true;
-            try {
-                // ดึงราคาจริงจากฐานข้อมูล ไม่เชื่อราคาใน localStorage (ผู้ใช้แก้เองได้)
-                const { data: rows, error: e1 } = await _supabase.from('products')
-                    .select('id,name,price').in('id', cart.map(i => i.id));
-                if (e1) throw e1;
-                const items = cart.filter(i => rows.some(r => String(r.id) === i.id)).map(i => {
-                    const r = rows.find(r => String(r.id) === i.id);
-                    return { id: r.id, name: r.name, price: Number(r.price), quantity: Number(i.quantity) || 1 };
-                });
-                if (items.length === 0) throw new Error('สินค้าในตะกร้าไม่มีในระบบแล้ว');
-                const total = items.reduce((s, i) => s + i.price * i.quantity, 0);
-                const { error: e2 } = await _supabase.from('orders').insert([{ items, total }]);
-                if (e2) throw e2;
-                localStorage.removeItem('cart');
-                alert("สั่งซื้อสินค้าสำเร็จ! ขอบคุณที่ใช้บริการ RarePart Finder");
-                location.href = 'profile.html';
-            } catch (err) {
-                alert('สั่งซื้อไม่สำเร็จ: ' + err.message);
-                btn.disabled = false;
-            }
+            // ส่งแค่ id + จำนวน เซิร์ฟเวอร์คิดราคาและตัดสต็อกเอง
+            const items = cart.map(i => ({ id: Number(i.id), quantity: Number(i.quantity) || 1 }));
+            const { error } = await _supabase.rpc('place_order', { p_items: items });
+            if (error) { alert('สั่งซื้อไม่สำเร็จ: ' + error.message); btn.disabled = false; return; }
+            localStorage.removeItem('cart');
+            alert("สั่งซื้อสินค้าสำเร็จ! ขอบคุณที่ใช้บริการ RarePart Finder");
+            location.href = 'profile.html';
         }
 
         // เริ่มต้นการทำงาน

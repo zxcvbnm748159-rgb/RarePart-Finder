@@ -91,6 +91,7 @@
                 </button>
             </div>
 
+            <button class="btn-edit" style="margin-top:10px" onclick="location.href='seller-orders.html'">ออเดอร์ที่เข้ามา (ผู้ขาย)</button>
             <button class="btn-checkout" onclick="location.href='checkout.html'">
                 <i class="fa-solid fa-wallet"></i> ไปหน้าแจ้งชำระเงิน
             </button>
@@ -132,7 +133,7 @@
             el.innerHTML = data.length ? data.map(p => `
                 <div class="history-item"><div><a href="product.html?id=${encodeURIComponent(p.id)}"><strong>${esc(p.name)}</strong></a><br>
                 <small style="color:#999;">฿${Number(p.price).toLocaleString()}</small></div>
-                <button data-id="${esc(p.id)}" class="del-p" style="border:none;background:#ff4d4d;color:#fff;border-radius:6px;padding:6px 12px;cursor:pointer">ลบ</button></div>`).join('')
+                <a href="edit-product.html?id=${encodeURIComponent(p.id)}" style="margin-right:8px">แก้ไข</a><button data-id="${esc(p.id)}" class="del-p" style="border:none;background:#ff4d4d;color:#fff;border-radius:6px;padding:6px 12px;cursor:pointer">ลบ</button></div>`).join('')
                 : '<p style="color:#999">ยังไม่ได้ลงขายสินค้า</p>';
             el.querySelectorAll('.del-p').forEach(b => b.onclick = async () => {
                 if (!confirm('ลบสินค้านี้?')) return;
