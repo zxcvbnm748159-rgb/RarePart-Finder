@@ -80,8 +80,8 @@
     <div class="container">
         <aside class="card" style="text-align: center;">
             <div class="avatar"><i class="fa-solid fa-user"></i></div>
-            <h3 id="displayUsername">คุณ Thanita Senphrad</h3>
-            <p style="color: #888; font-size: 0.9rem; margin-bottom: 5px;">Grade 12, Wat Intharam School</p>
+            <h3 id="displayUsername">กำลังโหลด...</h3>
+            <p style="color: #888; font-size: 0.9rem; margin-bottom: 5px;"></p>
             <p style="color: #aaa; font-size: 0.8rem;">Member since 2026</p>
             
             <div class="btn-group">
@@ -98,40 +98,50 @@
 
         <main class="card">
             <h2 style="margin-bottom: 25px;"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการสั่งซื้อ</h2>
-            <div class="history-item">
-                <div>
-                    <strong>S13 OEM Projectors</strong><br>
-                    <small style="color:#999;">Order #RP10293 - 07 มี.ค. 2026</small>
-                </div>
-                <div class="status-done">สำเร็จ</div>
-            </div>
-            <div class="history-item">
-                <div>
-                    <strong>R34 Nismo Bumper</strong><br>
-                    <small style="color:#999;">Order #RP10280 - 01 มี.ค. 2026</small>
-                </div>
-                <div class="status-done">สำเร็จ</div>
-            </div>
+            <div id="ordersList"><p style="color:#999">กำลังโหลด...</p></div>
+            <h2 style="margin:35px 0 15px"><i class="fa-solid fa-store"></i> สินค้าที่ฉันลงขาย</h2>
+            <div id="myProducts"><p style="color:#999">กำลังโหลด...</p></div>
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="common.js"></script>
     <script>
-        // ดึงชื่อมาแสดงผลจาก LocalStorage (ถ้ามี)
-        window.onload = function() {
-            const username = localStorage.getItem('username');
-            if (username) {
-                document.getElementById('displayUsername').innerText = "คุณ " + username;
-            }
+        window.onload = async function () {
+            const user = await requireLogin();
+            if (!user) return;
+            document.getElementById('displayUsername').innerText = 'คุณ ' + displayName(user);
+            document.querySelector('aside p').innerText = user.email;
+            loadOrders(); loadMyProducts(user.id);
         };
-
-        function handleLogout() {
-            if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
-                localStorage.removeItem('isLoggedIn');
-                localStorage.removeItem('username');
-                // หมายเหตุ: ไม่ใช้ clear() เผื่อคุณอยากเก็บข้อมูลสินค้าในตะกร้าไว้
-                window.location.href = 'index.html';
-            }
+        async function loadOrders() {
+            const { data, error } = await _supabase.from('orders').select('*').order('created_at', { ascending: false });
+            const el = document.getElementById('ordersList');
+            if (error) { el.innerHTML = '<p>โหลดประวัติไม่สำเร็จ</p>'; return; }
+            el.innerHTML = data.length ? data.map(o => `
+                <div class="history-item"><div>
+                    <strong>${o.items.map(i => esc(i.name) + ' x' + i.quantity).join(', ')}</strong><br>
+                    <small style="color:#999;">Order #RP${o.id} - ${new Date(o.created_at).toLocaleDateString('th-TH')} - ฿${Number(o.total).toLocaleString()}</small>
+                </div><div class="status-done">${esc(o.status)}</div></div>`).join('')
+                : '<p style="color:#999">ยังไม่มีคำสั่งซื้อ</p>';
         }
+        async function loadMyProducts(uid) {
+            const { data, error } = await _supabase.from('products').select('id,name,price').eq('seller_id', uid).order('created_at', { ascending: false });
+            const el = document.getElementById('myProducts');
+            if (error) { el.innerHTML = '<p>โหลดไม่สำเร็จ</p>'; return; }
+            el.innerHTML = data.length ? data.map(p => `
+                <div class="history-item"><div><a href="product.html?id=${encodeURIComponent(p.id)}"><strong>${esc(p.name)}</strong></a><br>
+                <small style="color:#999;">฿${Number(p.price).toLocaleString()}</small></div>
+                <button data-id="${esc(p.id)}" class="del-p" style="border:none;background:#ff4d4d;color:#fff;border-radius:6px;padding:6px 12px;cursor:pointer">ลบ</button></div>`).join('')
+                : '<p style="color:#999">ยังไม่ได้ลงขายสินค้า</p>';
+            el.querySelectorAll('.del-p').forEach(b => b.onclick = async () => {
+                if (!confirm('ลบสินค้านี้?')) return;
+                const { error } = await _supabase.from('products').delete().eq('id', b.dataset.id);
+                if (error) return alert('ลบไม่สำเร็จ: ' + error.message);
+                loadMyProducts(uid);
+            });
+        }
+        function handleLogout() { if (confirm('คุณต้องการออกจากระบบใช่หรือไม่?')) logout(); }
     </script>
 </body>
 </html>

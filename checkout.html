@@ -112,7 +112,10 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="common.js"></script>
     <script>
+        requireLogin();
         function renderCheckout() {
             // ดึงข้อมูลจาก localStorage
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -146,9 +149,9 @@
 
                 return `
                     <div class="cart-item">
-                        <img src="${img}" alt="${name}">
+                        <img src="${esc(img)}" alt="${esc(name)}">
                         <div class="item-details">
-                            <h4>${name}</h4>
+                            <h4>${esc(name)}</h4>
                             <p>${price.toLocaleString()} บาท x ${qty}</p>
                         </div>
                         <button class="btn-remove" onclick="removeItem(${index})">
@@ -169,16 +172,31 @@
             renderCheckout();
         }
 
-        function processOrder() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            if (cart.length === 0) {
-                alert("ไม่มีสินค้าให้สั่งซื้อครับ");
-                return;
+        async function processOrder() {
+            const cart = Cart.get();
+            if (cart.length === 0) { alert("ไม่มีสินค้าให้สั่งซื้อครับ"); return; }
+            const btn = document.querySelector('.btn-checkout');
+            btn.disabled = true;
+            try {
+                // ดึงราคาจริงจากฐานข้อมูล ไม่เชื่อราคาใน localStorage (ผู้ใช้แก้เองได้)
+                const { data: rows, error: e1 } = await _supabase.from('products')
+                    .select('id,name,price').in('id', cart.map(i => i.id));
+                if (e1) throw e1;
+                const items = cart.filter(i => rows.some(r => String(r.id) === i.id)).map(i => {
+                    const r = rows.find(r => String(r.id) === i.id);
+                    return { id: r.id, name: r.name, price: Number(r.price), quantity: Number(i.quantity) || 1 };
+                });
+                if (items.length === 0) throw new Error('สินค้าในตะกร้าไม่มีในระบบแล้ว');
+                const total = items.reduce((s, i) => s + i.price * i.quantity, 0);
+                const { error: e2 } = await _supabase.from('orders').insert([{ items, total }]);
+                if (e2) throw e2;
+                localStorage.removeItem('cart');
+                alert("สั่งซื้อสินค้าสำเร็จ! ขอบคุณที่ใช้บริการ RarePart Finder");
+                location.href = 'profile.html';
+            } catch (err) {
+                alert('สั่งซื้อไม่สำเร็จ: ' + err.message);
+                btn.disabled = false;
             }
-            
-            alert("สั่งซื้อสินค้าสำเร็จ! ขอบคุณที่ใช้บริการ RarePart Finder");
-            localStorage.removeItem('cart');
-            window.location.href = 'index.html';
         }
 
         // เริ่มต้นการทำงาน

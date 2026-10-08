@@ -313,90 +313,65 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="common.js"></script>
     <script>
-        const supabaseUrl = 'https://luuclnuknivvekxyiojz.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1dWNsbnVrbml2dmVreHlpb2p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NzY0MTIsImV4cCI6MjA4ODQ1MjQxMn0.0qmDRylJ-yN6QJtf50bGrn2mcqedwoakxVASKTxmLVg';
-        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
         let currentCategory = 'all';
+        let debounceTimer;
 
-        window.addEventListener('DOMContentLoaded', () => {
-            updateAuthUI();
+        window.addEventListener('DOMContentLoaded', async () => {
+            await updateAuthUI();
             updateCartBadge();
             loadProducts();
-
             document.getElementById('searchInput').addEventListener('input', (e) => {
-                loadProducts(e.target.value, currentCategory);
+                clearTimeout(debounceTimer); // ลดจำนวน request ตอนพิมพ์ค้นหา
+                debounceTimer = setTimeout(() => loadProducts(e.target.value, currentCategory), 300);
             });
         });
 
         async function loadProducts(searchTerm = "", category = "all") {
-            const productGrid = document.getElementById('mainProductGrid');
-            const gridTitle = document.getElementById('gridTitle');
-            productGrid.innerHTML = '<p style="grid-column:1/-1; text-align:center;">กำลังโหลด...</p>';
-
+            const grid = document.getElementById('mainProductGrid');
+            grid.innerHTML = '<p style="grid-column:1/-1; text-align:center;">กำลังโหลด...</p>';
             try {
                 let query = _supabase.from('products').select('*');
                 if (category !== 'all') query = query.eq('category', category);
                 if (searchTerm) query = query.ilike('name', `%${searchTerm}%`);
-
                 const { data: products, error } = await query.order('created_at', { ascending: false });
                 if (error) throw error;
-
-                productGrid.innerHTML = '';
                 if (!products || products.length === 0) {
-                    productGrid.innerHTML = '<p style="grid-column:1/-1; text-align:center;">ไม่พบสินค้า</p>';
+                    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center;">ไม่พบสินค้า</p>';
                     return;
                 }
-
-                products.forEach(product => {
+                grid.innerHTML = '';
+                products.forEach(p => {
                     const card = document.createElement('div');
                     card.className = 'product-card';
-                    const imgUrl = product.image_url || 'https://via.placeholder.com/300';
+                    const img = esc(p.image_url || 'https://via.placeholder.com/300');
                     card.innerHTML = `
-                        <div class="product-img" style="background-image: url('${imgUrl}')"></div>
+                        <a href="product.html?id=${encodeURIComponent(p.id)}"><div class="product-img" style="background-image:url('${img}')"></div></a>
                         <div style="padding-top:10px;">
-                            <h4>${product.name}</h4>
-                            <p style="color:var(--primary-blue); font-weight:800;">฿${Number(product.price).toLocaleString()}</p>
-                            <button class="btn-add-cart" onclick="addToCart('${product.id}', '${product.name}', ${product.price}, '${imgUrl}')">
-                                <i class="fa-solid fa-cart-plus"></i> เพิ่มลงตะกร้า
-                            </button>
+                            <a href="product.html?id=${encodeURIComponent(p.id)}" style="text-decoration:none;color:inherit"><h4>${esc(p.name)}</h4></a>
+                            <p style="color:var(--primary-blue); font-weight:800;">฿${Number(p.price).toLocaleString()}</p>
+                            <button class="btn-add-cart"><i class="fa-solid fa-cart-plus"></i> เพิ่มลงตะกร้า</button>
                         </div>`;
-                    productGrid.appendChild(card);
+                    // ใช้ addEventListener แทน onclick inline เพื่อไม่ให้ชื่อที่มี ' พังหรือถูกแทรกโค้ด
+                    card.querySelector('button').addEventListener('click', () =>
+                        addToCart({ id: String(p.id), name: p.name, price: Number(p.price), image: p.image_url }));
+                    grid.appendChild(card);
                 });
             } catch (err) {
-                productGrid.innerHTML = 'เกิดข้อผิดพลาด';
+                console.error(err);
+                grid.innerHTML = '<p style="grid-column:1/-1; text-align:center;">เกิดข้อผิดพลาดในการโหลดสินค้า</p>';
             }
         }
 
-        // ฟังก์ชันเดียวที่ใช้จัดการตะกร้าสินค้า
-        window.addToCart = function (id, name, price, image) {
-            if (localStorage.getItem('isLoggedIn') !== 'true') {
-                alert("กรุณาเข้าสู่ระบบก่อนครับ");
-                window.location.href = 'login.html';
-                return;
-            }
-
-            let cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const existing = cart.find(item => item.id === id);
-
-            if (existing) {
-                existing.quantity += 1;
-            } else {
-                cart.push({ id, name, price, image, quantity: 1 });
-            }
-
-            localStorage.setItem('cart', JSON.stringify(cart));
+        async function addToCart(item) {
+            if (!(await getUser())) { alert('กรุณาเข้าสู่ระบบก่อนครับ'); location.href = 'login.html'; return; }
+            Cart.add(item);
             updateCartBadge();
-            alert(`เพิ่ม ${name} แล้ว!`);
-        };
-
-        function updateCartBadge() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const total = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
-            const badge = document.getElementById('cartCount');
-            if (badge) badge.innerText = total;
+            alert(`เพิ่ม ${item.name} แล้ว!`);
         }
+
+        function updateCartBadge() { document.getElementById('cartCount').innerText = Cart.count(); }
 
         window.filterByCategory = function (cat) {
             currentCategory = cat;
@@ -405,23 +380,16 @@
             loadProducts(document.getElementById('searchInput').value, cat);
         };
 
-        function updateAuthUI() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-            document.getElementById('userMenuArea').style.display = isLoggedIn ? 'block' : 'none';
-            document.getElementById('loginBtnOnly').style.display = isLoggedIn ? 'none' : 'block';
-            if (document.getElementById('sellBtn')) document.getElementById('sellBtn').style.display = isLoggedIn ? 'flex' : 'none';
-            if (isLoggedIn) document.getElementById('navUsername').innerText = localStorage.getItem('username');
+        async function updateAuthUI() {
+            const user = await getUser();
+            document.getElementById('userMenuArea').style.display = user ? 'block' : 'none';
+            document.getElementById('loginBtnOnly').style.display = user ? 'none' : 'block';
+            document.getElementById('sellBtn').style.display = user ? 'flex' : 'none';
+            if (user) document.getElementById('navUsername').innerText = displayName(user);
         }
 
-        window.toggleDropdown = () => document.getElementById("myDropdown").classList.toggle("show");
-
-        window.handleLogout = () => {
-            if (confirm("ออกจากระบบ?")) {
-                localStorage.removeItem('isLoggedIn');
-                localStorage.removeItem('username');
-                window.location.reload();
-            }
-        };
+        window.toggleDropdown = () => document.getElementById('myDropdown').classList.toggle('show');
+        window.handleLogout = () => { if (confirm('ออกจากระบบ?')) logout(); };
     </script>
 </body>
 

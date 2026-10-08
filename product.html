@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RarePart Finder - รายละเอียดสินค้า</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --blue:#2b59ff; }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'Kanit',sans-serif; background:#f5f7fa; color:#1a1d23; }
+        header { background:#fff; height:70px; display:flex; align-items:center; padding:0 30px; box-shadow:0 2px 10px rgba(0,0,0,.05); }
+        header a { text-decoration:none; color:var(--blue); font-weight:500; }
+        .box { max-width:900px; margin:30px auto; padding:0 15px; display:grid; grid-template-columns:1fr 1fr; gap:30px; background:#fff; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,.05); padding:25px; }
+        .img { width:100%; aspect-ratio:1; background:#f0f2f5 center/cover; border-radius:12px; }
+        .price { color:var(--blue); font-size:1.8rem; font-weight:500; margin:10px 0; }
+        .tag { display:inline-block; background:#f0f4ff; color:var(--blue); padding:3px 12px; border-radius:20px; font-size:.85rem; }
+        .detail { white-space:pre-wrap; margin:15px 0; color:#555; line-height:1.6; }
+        button { width:100%; padding:12px; border:none; border-radius:8px; font-family:inherit; font-size:1rem; cursor:pointer; background:var(--blue); color:#fff; margin-top:8px; }
+        button.del { background:#ff4d4d; }
+        @media (max-width:700px) { .box { grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+    <header><a href="index.html">&larr; กลับหน้าหลัก</a></header>
+    <div class="box" id="box"><p>กำลังโหลด...</p></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="common.js"></script>
+    <script>
+        (async function () {
+            const box = document.getElementById('box');
+            const id = new URLSearchParams(location.search).get('id');
+            const { data: p, error } = await _supabase.from('products').select('*').eq('id', id).maybeSingle();
+            if (error || !p) { box.innerHTML = '<p>ไม่พบสินค้า</p>'; return; }
+            const user = await getUser();
+            const mine = user && p.seller_id === user.id;
+            box.innerHTML = `
+                <div class="img" style="background-image:url('${esc(p.image_url || 'https://via.placeholder.com/500')}')"></div>
+                <div>
+                    <span class="tag">${esc(p.category)}</span>
+                    <h2 style="margin-top:10px">${esc(p.name)}</h2>
+                    <div class="price">฿${Number(p.price).toLocaleString()}</div>
+                    <div class="detail">${esc(p.detail || 'ผู้ขายไม่ได้ระบุรายละเอียด')}</div>
+                    <button id="addBtn">เพิ่มลงตะกร้า</button>
+                    ${mine ? '<button class="del" id="delBtn">ลบสินค้านี้</button>' : ''}
+                </div>`;
+            document.getElementById('addBtn').onclick = async () => {
+                if (!(await getUser())) { alert('กรุณาเข้าสู่ระบบก่อนครับ'); location.href = 'login.html'; return; }
+                Cart.add({ id: String(p.id), name: p.name, price: Number(p.price), image: p.image_url });
+                alert('เพิ่มลงตะกร้าแล้ว!');
+            };
+            const del = document.getElementById('delBtn');
+            if (del) del.onclick = async () => {
+                if (!confirm('ลบสินค้านี้ถาวร?')) return;
+                const { error } = await _supabase.from('products').delete().eq('id', p.id);
+                if (error) return alert('ลบไม่สำเร็จ: ' + error.message);
+                location.href = 'index.html';
+            };
+        })();
+    </script>
+</body>
+</html>
